@@ -1,6 +1,10 @@
-package builtin
+package types
 
-import "github.com/markoczy/ifclib/xp"
+import (
+	"fmt"
+
+	"github.com/markoczy/ifclib/xp"
+)
 
 type defaultType struct {
 	name       string
@@ -20,7 +24,6 @@ func newDefaultType(name string, opts ...func(*defaultType)) xp.Type {
 		primitive: true,
 		min:       0,
 		max:       -1,
-		fixed:     true,
 	}
 	for _, opt := range opts {
 		opt(ret)
@@ -62,4 +65,8 @@ func (t *defaultType) Max() int {
 
 func (t *defaultType) Fixed() bool {
 	return t.fixed
+}
+
+func (t *defaultType) String() string {
+	return fmt.Sprintf("defaultType: { parent: %v, name: %v, primitive: %v, properties: %v, values: %v, elements: %v, min: %v, max: %v, fixed: %v }", t.parent, t.name, t.primitive, t.properties, t.values, t.elements, t.min, t.max, t.fixed)
 }

@@ -1,4 +1,4 @@
-package builtin
+package types
 
 import "github.com/markoczy/ifclib/xp"
 
@@ -9,6 +9,8 @@ var (
 	Logical = newDefaultType("LOGICAL")
 	Number  = newDefaultType("NUMBER")
 	Real    = newDefaultType("REAL")
+	// String with no length restrictions
+	String = newDefaultType("STRING")
 )
 
 func NewString(min, max int, fixed bool) xp.Type {
@@ -19,10 +21,11 @@ func NewString(min, max int, fixed bool) xp.Type {
 	})
 }
 
-func NewEnumeration(values []string) xp.Type {
-	return newDefaultType("ENUMERATION", func(dt *defaultType) {
+func NewEnumeration(name string, values []string) xp.Type {
+	// Enumerations are always a derived type
+	return NewDerived(name, newDefaultType("ENUMERATION", func(dt *defaultType) {
 		dt.values = values
-	})
+	}))
 }
 
 func NewArray(min, max int, of xp.Type) xp.Type {
@@ -54,5 +57,12 @@ func NewSet(min, max int, of xp.Type) xp.Type {
 func NewSelect(oneOf []xp.Type) xp.Type {
 	return newDefaultType("SELECT", func(dt *defaultType) {
 		dt.elements = oneOf
+	})
+}
+
+func NewDerived(name string, parent xp.Type) xp.Type {
+	return newDefaultType(name, func(dt *defaultType) {
+		dt.parent = parent
+		dt.primitive = false
 	})
 }

@@ -26,4 +26,6 @@ type Type interface {
 	Max() int
 	// For Strings, if true value Max counts as the limit
 	Fixed() bool
+	// Stringer interface
+	String() string
 }
