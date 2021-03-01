@@ -8,6 +8,8 @@ import (
 	"github.com/markoczy/ifclib/xp/types"
 )
 
+var rxNormalize, _ = regexp.Compile("(\n|\\s)+")
+
 func check(err error) {
 	if err != nil {
 		panic(err)
@@ -15,15 +17,24 @@ func check(err error) {
 }
 
 func tokenize(s string) ([]string, error) {
+	ret := []string{}
 	reg, err := regexp.Compile("(?msU)TYPE(.*)END_TYPE;")
 	if err != nil {
 		return nil, err
 	}
-	return reg.FindAllString(s, -1), nil
+	for _, v := range reg.FindAllString(s, -1) {
+		ret = append(ret, normalize(v))
+	}
+	return ret, nil
+}
+
+func normalize(s string) string {
+	return rxNormalize.ReplaceAllString(s, " ")
 }
 
 func main() {
-	testCreateTypes()
+	// testCreateTypes()
+	testTokenize()
 }
 
 func testCreateTypes() {
