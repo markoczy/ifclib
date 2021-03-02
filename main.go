@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"regexp"
+	"strings"
 
 	"github.com/markoczy/ifclib/xp/types"
 )
@@ -24,6 +25,25 @@ func tokenize(s string) ([]string, error) {
 	}
 	for _, v := range reg.FindAllString(s, -1) {
 		ret = append(ret, normalize(v))
+	}
+	return ret, nil
+}
+
+// TODO strings encased in ''
+var matcher = regexp.MustCompile(`\w+|\=|,|;|\(|\)|<=|>=|<|>|{|}|\[|\]|\:`)
+
+func tokenize2(s string) ([][]string, error) {
+	ret := [][]string{}
+	reg, err := regexp.Compile("(?msU)TYPE(.*)END_TYPE;")
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range reg.FindAllString(s, -1) {
+
+		// tokens := strings.Split(normalize(v), " ")
+		// tokens := ma
+		tokens := matcher.FindAllString(v, -1)
+		ret = append(ret, tokens)
 	}
 	return ret, nil
 }
@@ -66,11 +86,12 @@ func testTokenize() {
 	data, err := ioutil.ReadFile(filename)
 	check(err)
 
-	tokens, err := tokenize(string(data))
+	tokens, err := tokenize2(string(data))
 	check(err)
 
 	// fmt.Println(tokens)
 	for _, v := range tokens {
-		fmt.Println("*** TOKEN: " + v)
+		formatted := `"` + strings.Join(v, `", "`) + `"`
+		fmt.Println("*** TOKENS:", formatted)
 	}
 }
