@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/markoczy/ifclib/parser"
+	"github.com/markoczy/ifclib/xp"
 	"github.com/markoczy/ifclib/xp/types"
 )
 
@@ -29,8 +31,7 @@ func tokenize(s string) ([]string, error) {
 	return ret, nil
 }
 
-// TODO strings encased in ''
-var matcher = regexp.MustCompile(`\w+|\=|,|;|\(|\)|<=|>=|<|>|{|}|\[|\]|\:`)
+var matcher = regexp.MustCompile(`\w+|'|\=|,|;|\(|\)|<=|>=|<|>|{|}|\[|\]|\:`)
 
 func tokenize2(s string) ([][]string, error) {
 	ret := [][]string{}
@@ -54,7 +55,8 @@ func normalize(s string) string {
 
 func main() {
 	// testCreateTypes()
-	testTokenize()
+	// testTokenize()
+	testParse()
 }
 
 func testCreateTypes() {
@@ -93,5 +95,36 @@ func testTokenize() {
 	for _, v := range tokens {
 		formatted := `"` + strings.Join(v, `", "`) + `"`
 		fmt.Println("*** TOKENS:", formatted)
+	}
+}
+
+func testParse() {
+	input := `TYPE IfcContextDependentMeasure = REAL;
+END_TYPE;
+
+TYPE IfcCountMeasure = NUMBER;
+END_TYPE;
+
+TYPE IfcGloballyUniqueId = STRING(22) FIXED;
+END_TYPE;
+
+TYPE IfcComplexNumber = ARRAY [1:2] OF REAL;
+END_TYPE;
+
+TYPE IfcCompoundPlaneAngleMeasure = LIST [3:4] OF INTEGER;
+END_TYPE;`
+
+	typeArr := []xp.Type{}
+
+	tokens, err := tokenize2(input)
+	check(err)
+	for _, v := range tokens {
+		fmt.Println("*** Tokens:", v)
+		typeArr = append(typeArr, parser.ParseType(v))
+	}
+
+	for _, v := range typeArr {
+		fmt.Println(v)
+		fmt.Println()
 	}
 }
