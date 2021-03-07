@@ -9,34 +9,16 @@ import (
 	"github.com/markoczy/ifclib/xp/types"
 )
 
-// FIFO Stack
-type tokenQueue []string
-
-func (q *tokenQueue) Peek() string {
-	return (*q)[0]
-}
-
-func (q *tokenQueue) Empty() bool {
-	return len(*q) == 0
-}
-
-func (q *tokenQueue) Pop() string {
-	ret := (*q)[0]
-	*q = (*q)[1:]
-	return ret
-}
-
-func (q *tokenQueue) Push(s string) {
-	*q = append(*q, s)
-}
-
-func assert(b bool, s string) {
-	if !b {
-		panic(fmt.Errorf(s))
+func InitTypeMap(tokens [][]string) types.TypeMap {
+	names := []string{}
+	for _, v := range tokens {
+		assert(v[0] == "TYPE", "Expected 'TYPE' found "+v[0])
+		names = append(names, v[1])
 	}
+	return types.NewTypeMap(names)
 }
 
-func ParseType(tokens []string) xp.Type {
+func ParseType(tokens []string, mp types.TypeMap) xp.Type {
 	var ret xp.Type
 	queue := tokenQueue(tokens)
 	// var name string
@@ -63,19 +45,27 @@ func ParseType(tokens []string) xp.Type {
 	case names.String:
 		ret = parseStringDerived(name, &queue)
 	case names.Array:
-		ret = parseArrayLike(name, &queue, types.NewArray)
+		ret = parseArrayLike(name, &queue, types.NewArray, mp)
 	case names.List:
-		ret = parseArrayLike(name, &queue, types.NewList)
+		ret = parseArrayLike(name, &queue, types.NewList, mp)
 	case names.Set:
-		ret = parseArrayLike(name, &queue, types.NewSet)
-	default:
+		ret = parseArrayLike(name, &queue, types.NewSet, mp)
+	case names.Enumeration:
 		// TODO
-		panic(fmt.Errorf("Unexpected parent type name " + parent))
+	default:
+		ret = types.NewDerived(name, mp.Lookup(parent))
+		// panic(fmt.Errorf("Unexpected parent type name " + parent))
 	}
 	token = queue.Pop()
 	assert(token == ";", "Expected ';' found "+token)
 	// TODO where parser
 	return ret
+}
+
+func assert(b bool, s string) {
+	if !b {
+		panic(fmt.Errorf(s))
+	}
 }
 
 func parseDerivedNoParams(name string, parent xp.Type, tokens *tokenQueue) xp.Type {
@@ -104,7 +94,7 @@ func parseStringDerived(name string, tokens *tokenQueue) xp.Type {
 	return types.NewDerived(name, types.NewString(0, length, fixed))
 }
 
-func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp.Type) xp.Type) xp.Type {
+func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp.Type) xp.Type, mp types.TypeMap) xp.Type {
 	var (
 		min, max int
 		err      error
@@ -135,7 +125,6 @@ func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp
 	token = tokens.Pop()
 	assert(token == "OF", "Expected 'OF' found "+token)
 
-	// TODO pre-parsed types
 	var parent xp.Type
 	token = tokens.Pop()
 	switch token {
@@ -154,10 +143,13 @@ func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp
 	case names.String:
 		parent = types.String
 	default:
-		panic(fmt.Errorf("Unexpected parent type name: %s", token))
+		parent = mp.Lookup(token)
 	}
-
 	return types.NewDerived(name, generator(min, max, parent))
 }
+
+// func parseEnumeration(name string, tokens *tokenQueue) {
+
+// }
 
 func noop(i ...interface{}) {}

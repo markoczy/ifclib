@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/markoczy/ifclib/parser"
-	"github.com/markoczy/ifclib/xp"
 	"github.com/markoczy/ifclib/xp/types"
 )
 
@@ -112,19 +111,28 @@ TYPE IfcComplexNumber = ARRAY [1:2] OF REAL;
 END_TYPE;
 
 TYPE IfcCompoundPlaneAngleMeasure = LIST [3:4] OF INTEGER;
+END_TYPE;
+
+TYPE IfcArcIndex = LIST [3:3] OF IfcPositiveInteger;
+END_TYPE;
+
+TYPE IfcPositiveInteger = IfcInteger;
+END_TYPE;
+
+TYPE IfcInteger = INTEGER;
 END_TYPE;`
 
-	typeArr := []xp.Type{}
-
 	tokens, err := tokenize2(input)
+	mp := parser.InitTypeMap(tokens)
+
 	check(err)
 	for _, v := range tokens {
 		fmt.Println("*** Tokens:", v)
-		typeArr = append(typeArr, parser.ParseType(v))
+		tp := parser.ParseType(v, mp)
+		mp.Assign(tp.Name(), tp)
 	}
 
-	for _, v := range typeArr {
-		fmt.Println(v)
-		fmt.Println()
-	}
+	fmt.Println("TypeMap:", mp)
 }
+
+func noop(i ...interface{}) {}
