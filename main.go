@@ -120,6 +120,16 @@ TYPE IfcPositiveInteger = IfcInteger;
 END_TYPE;
 
 TYPE IfcInteger = INTEGER;
+END_TYPE;
+
+TYPE IfcMooringDeviceTypeEnum = ENUMERATION OF
+	(LINETENSIONER
+	,MAGNETICDEVICE
+	,MOORINGHOOKS
+	,VACUUMDEVICE
+	,BOLLARD
+	,USERDEFINED
+	,NOTDEFINED);
 END_TYPE;`
 
 	tokens, err := tokenize2(input)

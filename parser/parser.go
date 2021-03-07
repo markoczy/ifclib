@@ -51,7 +51,7 @@ func ParseType(tokens []string, mp types.TypeMap) xp.Type {
 	case names.Set:
 		ret = parseArrayLike(name, &queue, types.NewSet, mp)
 	case names.Enumeration:
-		// TODO
+		ret = parseEnumeration(name, &queue)
 	default:
 		ret = types.NewDerived(name, mp.Lookup(parent))
 		// panic(fmt.Errorf("Unexpected parent type name " + parent))
@@ -148,8 +148,20 @@ func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp
 	return types.NewDerived(name, generator(min, max, parent))
 }
 
-// func parseEnumeration(name string, tokens *tokenQueue) {
-
-// }
+func parseEnumeration(name string, tokens *tokenQueue) xp.Type {
+	token := tokens.Pop()
+	assert(token == "OF", "Expected 'OF' found "+token)
+	token = tokens.Pop()
+	assert(token == "(", "Expected '(' found "+token)
+	names := []string{}
+	for tokens.Peek() != ")" {
+		names = append(names, tokens.Pop())
+		if tokens.Peek() == "," {
+			tokens.Pop()
+		}
+	}
+	tokens.Pop()
+	return types.NewEnumeration(name, names)
+}
 
 func noop(i ...interface{}) {}
