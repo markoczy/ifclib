@@ -164,4 +164,25 @@ func parseEnumeration(name string, tokens *tokenQueue) xp.Type {
 	return types.NewEnumeration(name, names)
 }
 
+// func parseSelect(name string, tokens *tokenQueue, mp types.TypeMap) xp.Type {
+// 	oneOf := []xp.Type{}
+// 	token := tokens.Pop()
+// 	assert(token == "(", "Expected '(' found "+token)
+// 	for tokens.Peek() != ")" {
+// 		// names = append(names, tokens.Pop())
+// 		name := tokens.Pop()
+// 		tp := mp.Lookup(name)
+// 		if tp == nil {
+// 			panic(fmt.Errorf("Unresolvable type in SELECT: " + name))
+// 		}
+// 		oneOf = append(oneOf, tp)
+
+// 		if tokens.Peek() == "," {
+// 			tokens.Pop()
+// 		}
+// 	}
+// 	tokens.Pop()
+// 	return types.NewSelect(oneOf)
+// }
+
 func noop(i ...interface{}) {}
