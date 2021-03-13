@@ -133,7 +133,7 @@ TYPE IfcMooringDeviceTypeEnum = ENUMERATION OF
 END_TYPE;`
 
 	tokens, err := tokenize2(input)
-	mp := parser.InitTypeMap(tokens)
+	mp := parser.InitElementMap(tokens)
 
 	check(err)
 	for _, v := range tokens {

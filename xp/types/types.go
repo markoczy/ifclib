@@ -31,39 +31,39 @@ func NewEnumeration(name string, values []string) xp.Type {
 	}))
 }
 
-func NewArray(min, max int, of xp.Type) xp.Type {
+func NewArray(min, max int, of xp.Element) xp.Type {
 	return newDefaultType(names.Array, func(dt *defaultType) {
 		dt.min = min
 		dt.max = max
-		dt.elements = []xp.Type{of}
+		dt.elements = []xp.Element{of}
 	})
 }
 
-func NewList(min, max int, of xp.Type) xp.Type {
+func NewList(min, max int, of xp.Element) xp.Type {
 	// ? difference between array, list and set?
 	return newDefaultType(names.List, func(dt *defaultType) {
 		dt.min = min
 		dt.max = max
-		dt.elements = []xp.Type{of}
+		dt.elements = []xp.Element{of}
 	})
 }
 
-func NewSet(min, max int, of xp.Type) xp.Type {
+func NewSet(min, max int, of xp.Element) xp.Type {
 	// ? difference between array, list and set?
 	return newDefaultType(names.Set, func(dt *defaultType) {
 		dt.min = min
 		dt.max = max
-		dt.elements = []xp.Type{of}
+		dt.elements = []xp.Element{of}
 	})
 }
 
-func NewSelect(oneOf []xp.Type) xp.Type {
+func NewSelect(oneOf []xp.Element) xp.Type {
 	return newDefaultType(names.Select, func(dt *defaultType) {
 		dt.elements = oneOf
 	})
 }
 
-func NewDerived(name string, parent xp.Type) xp.Type {
+func NewDerived(name string, parent xp.Element) xp.Type {
 	return newDefaultType(name, func(dt *defaultType) {
 		dt.parent = parent
 		dt.primitive = false

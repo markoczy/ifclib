@@ -8,10 +8,10 @@ import (
 
 type defaultType struct {
 	name      string
-	parent    xp.Type
+	parent    xp.Element
 	primitive bool
 	values    []string
-	elements  []xp.Type
+	elements  []xp.Element
 	min       int
 	max       int
 	fixed     bool
@@ -30,7 +30,7 @@ func newDefaultType(name string, opts ...func(*defaultType)) xp.Type {
 	return ret
 }
 
-func (t *defaultType) Parent() xp.Type {
+func (t *defaultType) Parent() xp.Element {
 	return t.parent
 }
 
@@ -46,7 +46,7 @@ func (t *defaultType) Values() []string {
 	return t.values
 }
 
-func (t *defaultType) Elements() []xp.Type {
+func (t *defaultType) Elements() []xp.Element {
 	return t.elements
 }
 

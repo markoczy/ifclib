@@ -16,7 +16,7 @@ type Property interface {
 
 type Type interface {
 	// Parent Type "is a" relationship
-	Parent() Type
+	Parent() Element
 	// Identifier of the type
 	Name() string
 	// Wether the type is an Express primitive
@@ -26,7 +26,7 @@ type Type interface {
 	// Arrays, Lists: The Type of children elements (only 1 allowed)
 	//
 	// Select: The possible types ("one of")
-	Elements() []Type
+	Elements() []Element
 	// For strings, arrays etc.
 	Min() int
 	// For strings, arrays etc.
@@ -39,7 +39,9 @@ type Type interface {
 	Entity() Entity
 	// Stringer interface
 	String() string
+	//
 	// TODO WHERE
+	//
 }
 
 type InverseAttr interface {
@@ -54,5 +56,7 @@ type Entity interface {
 	SubtypeOf() Element
 	Inverse() []InverseAttr
 	Properties() []Property
+	//
 	// TODO DERIVE WHERE
+	//
 }

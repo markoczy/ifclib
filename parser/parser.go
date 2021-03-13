@@ -5,20 +5,21 @@ import (
 	"strconv"
 
 	"github.com/markoczy/ifclib/xp"
+	"github.com/markoczy/ifclib/xp/elems"
 	"github.com/markoczy/ifclib/xp/names"
 	"github.com/markoczy/ifclib/xp/types"
 )
 
-func InitTypeMap(tokens [][]string) types.TypeMap {
+func InitElementMap(tokens [][]string) elems.Map {
 	names := []string{}
 	for _, v := range tokens {
 		assert(v[0] == "TYPE", "Expected 'TYPE' found "+v[0])
 		names = append(names, v[1])
 	}
-	return types.NewTypeMap(names)
+	return elems.NewMap(names)
 }
 
-func ParseType(tokens []string, mp types.TypeMap) xp.Type {
+func ParseType(tokens []string, mp elems.Map) xp.Type {
 	var ret xp.Type
 	queue := tokenQueue(tokens)
 	// var name string
@@ -94,7 +95,7 @@ func parseStringDerived(name string, tokens *tokenQueue) xp.Type {
 	return types.NewDerived(name, types.NewString(0, length, fixed))
 }
 
-func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp.Type) xp.Type, mp types.TypeMap) xp.Type {
+func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp.Element) xp.Type, mp elems.Map) xp.Type {
 	var (
 		min, max int
 		err      error
@@ -125,7 +126,7 @@ func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp
 	token = tokens.Pop()
 	assert(token == "OF", "Expected 'OF' found "+token)
 
-	var parent xp.Type
+	var parent xp.Element
 	token = tokens.Pop()
 	switch token {
 	case names.Binary:
