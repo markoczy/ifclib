@@ -7,15 +7,14 @@ import (
 )
 
 type defaultType struct {
-	name       string
-	parent     xp.Type
-	primitive  bool
-	properties []xp.Property
-	values     []string
-	elements   []xp.Type
-	min        int
-	max        int
-	fixed      bool
+	name      string
+	parent    xp.Type
+	primitive bool
+	values    []string
+	elements  []xp.Type
+	min       int
+	max       int
+	fixed     bool
 }
 
 func newDefaultType(name string, opts ...func(*defaultType)) xp.Type {
@@ -43,10 +42,6 @@ func (t *defaultType) Primitive() bool {
 	return t.primitive
 }
 
-func (t *defaultType) Properties() []xp.Property {
-	return t.properties
-}
-
 func (t *defaultType) Values() []string {
 	return t.values
 }
@@ -67,6 +62,14 @@ func (t *defaultType) Fixed() bool {
 	return t.fixed
 }
 
+func (t *defaultType) Type() xp.Type {
+	return t
+}
+
+func (t *defaultType) Entity() xp.Entity {
+	return nil
+}
+
 func (t *defaultType) String() string {
-	return fmt.Sprintf("defaultType: { parent: %v, name: %v, primitive: %v, properties: %v, values: %v, elements: %v, min: %v, max: %v, fixed: %v }", t.parent, t.name, t.primitive, t.properties, t.values, t.elements, t.min, t.max, t.fixed)
+	return fmt.Sprintf("defaultType: { parent: %v, name: %v, primitive: %v, values: %v, elements: %v, min: %v, max: %v, fixed: %v }", t.parent, t.name, t.primitive, t.values, t.elements, t.min, t.max, t.fixed)
 }

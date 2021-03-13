@@ -1,8 +1,17 @@
 package xp
 
+// Element the common interface for any Type or Entity
+type Element interface {
+	Name() string
+	// Type returns the Type representation or nil if Element is not a Type
+	Type() Type
+	// Entity returns the Entity representation or nil if Element is not an Entity
+	Entity() Entity
+}
+
 type Property interface {
 	Name() string
-	Type() Type
+	Element() Element
 }
 
 type Type interface {
@@ -12,8 +21,6 @@ type Type interface {
 	Name() string
 	// Wether the type is an Express primitive
 	Primitive() bool
-	// Named Properties
-	Properties() []Property
 	// Enum Constants
 	Values() []string
 	// Arrays, Lists: The Type of children elements (only 1 allowed)
@@ -26,6 +33,26 @@ type Type interface {
 	Max() int
 	// For Strings, if true value Max counts as the limit
 	Fixed() bool
+	// Element interface
+	Type() Type
+	// Element interface
+	Entity() Entity
 	// Stringer interface
 	String() string
+	// TODO WHERE
+}
+
+type InverseAttr interface {
+	Name() string
+	Element() Element
+	ForProperty() string
+}
+
+type Entity interface {
+	Abstract() bool
+	SupertypeOf() []Element
+	SubtypeOf() Element
+	Inverse() []InverseAttr
+	Properties() []Property
+	// TODO DERIVE WHERE
 }

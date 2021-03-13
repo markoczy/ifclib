@@ -39,6 +39,7 @@ func (m *typeMap) String() string {
 	return sb.String()
 }
 
+// Transitive Mapped Type
 type mappedType struct {
 	tp xp.Type
 }
@@ -53,10 +54,6 @@ func (t *mappedType) Name() string {
 
 func (t *mappedType) Primitive() bool {
 	return t.tp.Primitive()
-}
-
-func (t *mappedType) Properties() []xp.Property {
-	return t.tp.Properties()
 }
 
 func (t *mappedType) Values() []string {
@@ -77,6 +74,14 @@ func (t *mappedType) Max() int {
 
 func (t *mappedType) Fixed() bool {
 	return t.tp.Fixed()
+}
+
+func (t *mappedType) Type() xp.Type {
+	return t.tp
+}
+
+func (t *mappedType) Entity() xp.Entity {
+	return nil
 }
 
 func (t *mappedType) String() string {
