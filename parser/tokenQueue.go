@@ -20,3 +20,8 @@ func (q *tokenQueue) Pop() string {
 func (q *tokenQueue) Push(s string) {
 	*q = append(*q, s)
 }
+
+func newTokenQueue(tokens []string) *tokenQueue {
+	ret := tokenQueue(tokens)
+	return &ret
+}

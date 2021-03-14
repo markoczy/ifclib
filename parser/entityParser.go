@@ -42,13 +42,13 @@ func ParseEntity(tokens []string, mp elems.Map) xp.Entity {
 }
 
 func parseSubtypeOf(queue *tokenQueue, mp elems.Map) xp.Element {
-	popAndAssertEquals(queue, "SUBTYPE")
-	popAndAssertEquals(queue, "OF")
-	popAndAssertEquals(queue, "(")
+	popAndAssertEquals("SUBTYPE", queue)
+	popAndAssertEquals("OF", queue)
+	popAndAssertEquals("(", queue)
 	token := queue.Pop()
 	subtypeOf := mp.Lookup(token)
 	token = queue.Pop()
-	popAndAssertEquals(queue, ")")
+	popAndAssertEquals(")", queue)
 	if queue.Peek() == ";" {
 		queue.Pop()
 	}
@@ -63,12 +63,12 @@ func parseSupertypeOf(queue *tokenQueue, mp elems.Map) (bool, []xp.Element) {
 		abstract = true
 		queue.Pop()
 	}
-	popAndAssertEquals(queue, "SUPERTYPE")
-	popAndAssertEquals(queue, "OF")
-	popAndAssertEquals(queue, "(")
+	popAndAssertEquals("SUPERTYPE", queue)
+	popAndAssertEquals("OF", queue)
+	popAndAssertEquals("(", queue)
 	//? Only found supertype with ONEOF, maybe in other step files this is optional
-	popAndAssertEquals(queue, "ONEOF")
-	popAndAssertEquals(queue, "(")
+	popAndAssertEquals("ONEOF", queue)
+	popAndAssertEquals("(", queue)
 	for queue.Peek() != ")" {
 		name := queue.Pop()
 		supertypeOf = append(supertypeOf, mp.Lookup(name))
@@ -76,14 +76,14 @@ func parseSupertypeOf(queue *tokenQueue, mp elems.Map) (bool, []xp.Element) {
 			queue.Pop()
 		}
 	}
-	popAndAssertEquals(queue, ")")
-	popAndAssertEquals(queue, ")")
+	popAndAssertEquals(")", queue)
+	popAndAssertEquals(")", queue)
 	return abstract, supertypeOf
 }
 
 func parseInverse(queue *tokenQueue, mp elems.Map) []xp.InverseAttr {
 	ret := []xp.InverseAttr{}
-	popAndAssertEquals(queue, "INVERSE")
+	popAndAssertEquals("INVERSE", queue)
 	// Unfortunately no better end condition
 	for queue.Peek() != "WHERE" && queue.Peek() != "END_ENTITY" {
 		// name := queue.Pop()
@@ -94,7 +94,7 @@ func parseInverse(queue *tokenQueue, mp elems.Map) []xp.InverseAttr {
 
 func parseWhere(queue *tokenQueue) {
 	// TODO We just skip the WHERE Statements for now...
-	popAndAssertEquals(queue, "WHERE")
+	popAndAssertEquals("WHERE", queue)
 	for queue.Peek() != ";" {
 		queue.Pop()
 	}

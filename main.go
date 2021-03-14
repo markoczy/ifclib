@@ -70,7 +70,7 @@ func testCreateTypes() {
 	fmt.Println()
 
 	// Enumeration derived
-	ifcActionRequestTypeEnum := types.NewEnumeration("IfcActionRequestTypeEnum", []string{"EMAIL", "FAX", "PHONE", "POST", "VERBAL", "USERDEFINED", "NOTDEFINED"})
+	ifcActionRequestTypeEnum := types.NewDerived("IfcActionRequestTypeEnum", types.NewEnumeration([]string{"EMAIL", "FAX", "PHONE", "POST", "VERBAL", "USERDEFINED", "NOTDEFINED"}))
 	fmt.Println("IfcActionRequestTypeEnum: ", ifcActionRequestTypeEnum)
 	fmt.Println()
 

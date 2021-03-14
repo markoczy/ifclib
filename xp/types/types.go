@@ -24,11 +24,10 @@ func NewString(min, max int, fixed bool) xp.Type {
 	})
 }
 
-func NewEnumeration(name string, values []string) xp.Type {
-	// Enumerations are always a derived type
-	return NewDerived(name, newDefaultType(names.Enumeration, func(dt *defaultType) {
+func NewEnumeration(values []string) xp.Type {
+	return newDefaultType(names.Enumeration, func(dt *defaultType) {
 		dt.values = values
-	}))
+	})
 }
 
 func NewArray(min, max int, of xp.Element) xp.Type {

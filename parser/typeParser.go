@@ -11,59 +11,53 @@ import (
 )
 
 func ParseType(tokens []string, mp elems.Map) xp.Type {
-	var ret xp.Type
-	queue := tokenQueue(tokens)
-	// var name string
-	token := queue.Pop()
-	assert(token == "TYPE", "Expected 'TYPE' found "+token)
+	queue := newTokenQueue(tokens)
+	popAndAssertEquals("TYPE", queue)
 	name := queue.Pop()
-	token = queue.Pop()
-	assert(token == "=", "Expected '=' found "+token)
-
-	parent := queue.Pop()
-	switch parent {
-	case names.Binary:
-		ret = parseDerivedNoParams(name, types.Binary, &queue)
-	case names.Boolean:
-		ret = parseDerivedNoParams(name, types.Boolean, &queue)
-	case names.Integer:
-		ret = parseDerivedNoParams(name, types.Integer, &queue)
-	case names.Logical:
-		ret = parseDerivedNoParams(name, types.Logical, &queue)
-	case names.Number:
-		ret = parseDerivedNoParams(name, types.Number, &queue)
-	case names.Real:
-		ret = parseDerivedNoParams(name, types.Real, &queue)
-	case names.String:
-		ret = parseStringDerived(name, &queue)
-	case names.Array:
-		ret = parseArrayLike(name, &queue, types.NewArray, mp)
-	case names.List:
-		ret = parseArrayLike(name, &queue, types.NewList, mp)
-	case names.Set:
-		ret = parseArrayLike(name, &queue, types.NewSet, mp)
-	case names.Enumeration:
-		ret = parseEnumeration(name, &queue)
-	default:
-		ret = types.NewDerived(name, mp.Lookup(parent))
-		// panic(fmt.Errorf("Unexpected parent type name " + parent))
-	}
-	token = queue.Pop()
-	assert(token == ";", "Expected ';' found "+token)
+	popAndAssertEquals("=", queue)
+	parent := parseType(queue, mp)
+	popAndAssertEquals(";", queue)
 	// TODO where parser
-	return ret
-}
-
-func parseType(tokens *tokenQueue, mp elems.Map) xp.Type {
-
-	return nil
-}
-
-func parseDerivedNoParams(name string, parent xp.Type, tokens *tokenQueue) xp.Type {
 	return types.NewDerived(name, parent)
 }
 
-func parseStringDerived(name string, tokens *tokenQueue) xp.Type {
+func parseType(queue *tokenQueue, mp elems.Map) xp.Element {
+	var el xp.Element
+	parentName := queue.Pop()
+	switch parentName {
+	case names.Binary:
+		el = types.Binary
+	case names.Boolean:
+		el = types.Boolean
+	case names.Integer:
+		el = types.Integer
+	case names.Logical:
+		el = types.Logical
+	case names.Number:
+		el = types.Number
+	case names.Real:
+		el = types.Real
+	case names.String:
+		el = parseString(queue)
+	case names.Array:
+		el = parseArrayLike(queue, types.NewArray, mp)
+	case names.List:
+		el = parseArrayLike(queue, types.NewList, mp)
+	case names.Set:
+		el = parseArrayLike(queue, types.NewSet, mp)
+	case names.Enumeration:
+		el = parseEnumeration(queue)
+	default:
+		el = mp.Lookup(parentName)
+	}
+	return el
+}
+
+// func parseDerivedNoParams(name string, parent xp.Type, tokens *tokenQueue) xp.Type {
+// 	return types.NewDerived(name, parent)
+// }
+
+func parseString(tokens *tokenQueue) xp.Type {
 	var err error
 	length := -1
 	fixed := false
@@ -80,29 +74,27 @@ func parseStringDerived(name string, tokens *tokenQueue) xp.Type {
 		}
 	}
 	if length == -1 && fixed == false {
-		return types.NewDerived(name, types.String)
+		return types.String
 	}
-	return types.NewDerived(name, types.NewString(0, length, fixed))
+	return types.NewString(0, length, fixed)
 }
 
-func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp.Element) xp.Type, mp elems.Map) xp.Type {
+func parseArrayLike(queue *tokenQueue, generator func(int, int, xp.Element) xp.Type, mp elems.Map) xp.Type {
 	var (
 		min, max int
 		err      error
+		token    string
 	)
 
-	token := tokens.Pop()
-	assert(token == "[", "Expected '[' found "+token)
-
-	token = tokens.Pop()
+	popAndAssertEquals("[", queue)
+	token = queue.Pop()
 	min, err = strconv.Atoi(token)
 	if err != nil {
 		panic(fmt.Errorf("Failed to parse min value from token %s %w", token, err))
 	}
-	token = tokens.Pop()
-	assert(token == ":", "Expected ':' found "+token)
+	popAndAssertEquals(":", queue)
 
-	token = tokens.Pop()
+	token = queue.Pop()
 	if token == "?" {
 		max = -1
 	} else {
@@ -111,13 +103,11 @@ func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp
 			panic(fmt.Errorf("Failed to parse max value from token %s %w", token, err))
 		}
 	}
-	token = tokens.Pop()
-	assert(token == "]", "Expected ']' found "+token)
-	token = tokens.Pop()
-	assert(token == "OF", "Expected 'OF' found "+token)
+	popAndAssertEquals("]", queue)
+	popAndAssertEquals("OF", queue)
 
 	var parent xp.Element
-	token = tokens.Pop()
+	token = queue.Pop()
 	switch token {
 	case names.Binary:
 		parent = types.Binary
@@ -136,23 +126,21 @@ func parseArrayLike(name string, tokens *tokenQueue, generator func(int, int, xp
 	default:
 		parent = mp.Lookup(token)
 	}
-	return types.NewDerived(name, generator(min, max, parent))
+	return generator(min, max, parent)
 }
 
-func parseEnumeration(name string, tokens *tokenQueue) xp.Type {
-	token := tokens.Pop()
-	assert(token == "OF", "Expected 'OF' found "+token)
-	token = tokens.Pop()
-	assert(token == "(", "Expected '(' found "+token)
+func parseEnumeration(queue *tokenQueue) xp.Type {
+	popAndAssertEquals("OF", queue)
+	popAndAssertEquals("(", queue)
 	names := []string{}
-	for tokens.Peek() != ")" {
-		names = append(names, tokens.Pop())
-		if tokens.Peek() == "," {
-			tokens.Pop()
+	for queue.Peek() != ")" {
+		names = append(names, queue.Pop())
+		if queue.Peek() == "," {
+			queue.Pop()
 		}
 	}
-	tokens.Pop()
-	return types.NewEnumeration(name, names)
+	queue.Pop()
+	return types.NewEnumeration(names)
 }
 
 // func parseSelect(name string, tokens *tokenQueue, mp types.TypeMap) xp.Type {
