@@ -56,6 +56,12 @@ type Entity interface {
 	SubtypeOf() Element
 	Inverse() []InverseAttr
 	Properties() []Property
+	// Element interface
+	Type() Type
+	// Element interface
+	Entity() Entity
+	// Stringer interface
+	String() string
 	//
 	// TODO DERIVE WHERE
 	//

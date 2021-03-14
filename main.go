@@ -132,10 +132,10 @@ TYPE IfcMooringDeviceTypeEnum = ENUMERATION OF
 	,NOTDEFINED);
 END_TYPE;`
 
-	tokens, err := tokenize2(input)
-	mp := parser.InitElementMap(tokens)
+	mp := parser.InitElementMap(input)
+	tokens := parser.TokenizeTypeDefinitions(input)
 
-	check(err)
+	fmt.Println(mp)
 	for _, v := range tokens {
 		fmt.Println("*** Tokens:", v)
 		tp := parser.ParseType(v, mp)
