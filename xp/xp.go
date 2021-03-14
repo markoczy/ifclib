@@ -12,6 +12,9 @@ type Element interface {
 type Property interface {
 	Name() string
 	Element() Element
+	Optional() bool
+	// Stringer interface
+	String() string
 }
 
 type Type interface {
@@ -48,6 +51,8 @@ type InverseAttr interface {
 	Name() string
 	Element() Element
 	ForProperty() string
+	// Stringer interface
+	String() string
 }
 
 type Entity interface {

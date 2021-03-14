@@ -15,29 +15,23 @@ func ParseEntity(tokens []string, mp elems.Map) xp.Entity {
 		inverseAttr []xp.InverseAttr
 		properties  []xp.Property
 	)
-	queue := tokenQueue(tokens)
+	queue := newTokenQueue(tokens)
 
-	// var name string
-	token := queue.Pop()
-	assert(token == "ENTITY", "Expected 'ENTITY' found "+token)
-
-	token = queue.Peek()
-	switch token {
-	case "SUBTYPE":
-
-	case "ABSTRACT", "SUPERTYPE":
-
-	case "INVERSE":
-
-	// default:
-	case "WHERE":
-		parseWhere(&queue)
+	popAndAssertEquals("ENTITY", queue)
+	for queue.Peek() != "END_ENTITY" {
+		switch queue.Peek() {
+		case "SUBTYPE":
+			parseSubtypeOf(queue, mp)
+		case "ABSTRACT", "SUPERTYPE":
+			parseSupertypeOf(queue, mp)
+		case "INVERSE":
+			parseInverse(queue, mp)
+		case "WHERE":
+			parseWhere(queue)
+		default:
+			parseProperties(queue, mp)
+		}
 	}
-	// name := queue.Pop()
-	// token = queue.Pop()
-	// assert(token == "=", "Expected '=' found "+token)
-	noop(supertypeOf)
-
 	return types.NewDefaultEntity(abstract, supertypeOf, subtypeOf, inverseAttr, properties)
 }
 
@@ -81,13 +75,34 @@ func parseSupertypeOf(queue *tokenQueue, mp elems.Map) (bool, []xp.Element) {
 	return abstract, supertypeOf
 }
 
+func parseProperties(queue *tokenQueue, mp elems.Map) []xp.Property {
+	ret := []xp.Property{}
+	//! no better exit condition yet..
+	for queue.Peek() != "WHERE" && queue.Peek() != "END_ENTITY" {
+		optional := false
+		if queue.Peek() == "OPTIONAL" {
+			optional = true
+			queue.Pop()
+		}
+		name := queue.Pop()
+		el := parseType(queue, mp)
+		ret = append(ret, types.NewDefaultProperty(name, el, optional))
+	}
+	return ret
+}
+
 func parseInverse(queue *tokenQueue, mp elems.Map) []xp.InverseAttr {
 	ret := []xp.InverseAttr{}
 	popAndAssertEquals("INVERSE", queue)
 	// Unfortunately no better end condition
 	for queue.Peek() != "WHERE" && queue.Peek() != "END_ENTITY" {
-		// name := queue.Pop()
-
+		name := queue.Pop()
+		popAndAssertEquals(":", queue)
+		tp := parseType(queue, mp)
+		popAndAssertEquals("FOR", queue)
+		propName := queue.Pop()
+		ret = append(ret, types.NewDefaultInverseAttr(name, tp, propName))
+		popAndAssertEquals(";", queue)
 	}
 	return ret
 }
