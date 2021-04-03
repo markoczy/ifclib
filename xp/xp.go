@@ -56,6 +56,7 @@ type InverseAttr interface {
 }
 
 type Entity interface {
+	Name() string
 	Abstract() bool
 	SupertypeOf() []Element
 	SubtypeOf() Element

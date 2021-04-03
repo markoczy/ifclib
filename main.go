@@ -55,7 +55,8 @@ func normalize(s string) string {
 func main() {
 	// testCreateTypes()
 	// testTokenize()
-	testParse()
+	// testParse()
+	testParseEntities()
 }
 
 func testCreateTypes() {
@@ -143,6 +144,67 @@ END_TYPE;`
 	}
 
 	fmt.Println("TypeMap:", mp)
+}
+
+func testParseEntities() {
+	input := `
+	TYPE IfcLengthMeasure = REAL;
+	END_TYPE;
+
+    TYPE IfcPositiveLengthMeasure = IfcLengthMeasure;
+	WHERE
+		WR1 : SELF > 0.;
+	END_TYPE;
+
+	ENTITY IfcCsgPrimitive3D
+	ABSTRACT SUPERTYPE OF (ONEOF
+		(IfcRightCircularCylinder))
+	SUBTYPE OF (IfcGeometricRepresentationItem);
+		Position : IfcAxis2Placement3D;
+	DERIVE
+		Dim : IfcDimensionCount := 3;
+	END_ENTITY;
+
+	ENTITY IfcRightCircularCylinder
+	SUBTYPE OF (IfcCsgPrimitive3D);
+	   Height : IfcPositiveLengthMeasure;
+	   Radius : IfcPositiveLengthMeasure;
+    END_ENTITY;
+	
+	ENTITY IfcGeometricRepresentationItem
+	ABSTRACT SUPERTYPE OF (ONEOF
+		(IfcCsgPrimitive3D))
+	SUBTYPE OF (IfcRepresentationItem);
+	END_ENTITY;
+	
+	
+	ENTITY IfcRepresentationItem
+	ABSTRACT SUPERTYPE OF (ONEOF
+		(IfcGeometricRepresentationItem));
+	INVERSE
+		LayerAssignment : SET [0:1] OF IfcPresentationLayerAssignment FOR AssignedItems;
+		StyledByItem : SET [0:1] OF IfcStyledItem FOR Item;
+	END_ENTITY;`
+
+	mp := parser.InitElementMap(input)
+	fmt.Println("Elements before parse:", mp)
+
+	tokens := parser.TokenizeTypeDefinitions(input)
+	for _, v := range tokens {
+		fmt.Println("*** Tokens:", v)
+		tp := parser.ParseType(v, mp)
+		mp.Assign(tp.Name(), tp)
+	}
+	fmt.Println("Elements after parse types:", mp)
+
+	tokens = parser.TokenizeEntityDefinitions(input)
+	for _, v := range tokens {
+		fmt.Println("*** Tokens:", v)
+		ent := parser.ParseEntity(v, mp)
+		mp.Assign(ent.Name(), ent)
+	}
+	fmt.Println("***********************************")
+	fmt.Println("Elements after parse entities:", mp)
 }
 
 func noop(i ...interface{}) {}

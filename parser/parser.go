@@ -29,12 +29,14 @@ func tokenize(s, regex string) [][]string {
 }
 
 func InitElementMap(s string) elems.Map {
-	rx := regexp.MustCompile(`^(TYPE|ENTITY)\s+(?P<name>\w+).*`)
+	rx := regexp.MustCompile(`^\s*(TYPE|ENTITY)\s+(?P<name>\w+).*`)
 	names := []string{}
 	lines := strings.Split(s, "\n")
+	fmt.Println(strings.Join(lines, ":\n"))
 	idx := rx.SubexpIndex("name")
 	for _, line := range lines {
 		submatch := rx.FindStringSubmatch(line)
+		fmt.Println("Submatch", submatch)
 		if len(submatch) > idx {
 			names = append(names, submatch[idx])
 		}

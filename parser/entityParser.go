@@ -18,21 +18,24 @@ func ParseEntity(tokens []string, mp elems.Map) xp.Entity {
 	queue := newTokenQueue(tokens)
 
 	popAndAssertEquals("ENTITY", queue)
+	name := queue.Pop()
 	for queue.Peek() != "END_ENTITY" {
 		switch queue.Peek() {
 		case "SUBTYPE":
-			parseSubtypeOf(queue, mp)
+			subtypeOf = parseSubtypeOf(queue, mp)
 		case "ABSTRACT", "SUPERTYPE":
-			parseSupertypeOf(queue, mp)
+			abstract, supertypeOf = parseSupertypeOf(queue, mp)
 		case "INVERSE":
-			parseInverse(queue, mp)
+			inverseAttr = parseInverse(queue, mp)
 		case "WHERE":
 			parseWhere(queue)
 		default:
-			parseProperties(queue, mp)
+			properties = parseProperties(queue, mp)
 		}
 	}
-	return types.NewDefaultEntity(abstract, supertypeOf, subtypeOf, inverseAttr, properties)
+	ret := types.NewDefaultEntity(name, abstract, supertypeOf, subtypeOf, inverseAttr, properties)
+	// fmt.Println("*** Parsed Entity:", ret)
+	return ret
 }
 
 func parseSubtypeOf(queue *tokenQueue, mp elems.Map) xp.Element {
@@ -41,7 +44,7 @@ func parseSubtypeOf(queue *tokenQueue, mp elems.Map) xp.Element {
 	popAndAssertEquals("(", queue)
 	token := queue.Pop()
 	subtypeOf := mp.Lookup(token)
-	token = queue.Pop()
+	// token = queue.Pop()
 	popAndAssertEquals(")", queue)
 	if queue.Peek() == ";" {
 		queue.Pop()
@@ -114,3 +117,5 @@ func parseWhere(queue *tokenQueue) {
 		queue.Pop()
 	}
 }
+
+// TODO Parse DERIVE, UNIQUE
