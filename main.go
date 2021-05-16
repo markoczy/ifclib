@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/markoczy/ifclib/parser"
+	"github.com/markoczy/ifclib/tokenizer"
 	"github.com/markoczy/ifclib/xp/types"
 )
 
@@ -56,7 +57,8 @@ func main() {
 	// testCreateTypes()
 	// testTokenize()
 	// testParse()
-	testParseEntities()
+	// testParseEntities()
+	testNewTokenizer()
 }
 
 func testCreateTypes() {
@@ -205,6 +207,15 @@ func testParseEntities() {
 	}
 	fmt.Println("***********************************")
 	fmt.Println("Elements after parse entities:", mp)
+}
+
+func testNewTokenizer() {
+	// TODO newline support
+	s := `TYPE IfcMonthInYearNumber = INTEGER; WHERE ValidRange : {1 <= SELF <= 12}; END_TYPE;`
+	tokens := tokenizer.CreateTokens(s)
+	for _, v := range tokens {
+		fmt.Println("Token:", v)
+	}
 }
 
 func noop(i ...interface{}) {}
