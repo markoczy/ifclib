@@ -1,4 +1,4 @@
-package tokenizer
+package parser
 
 import (
 	"fmt"
@@ -59,15 +59,18 @@ func skipSpace(queue *runeQueue, begin int) int {
 	return end
 }
 
-func GetEntityDefinitions(tokens []Token) ([][]Token, error) {
+func TokenizeEntityDefinitions(input string) ([][]Token, error) {
+	tokens := CreateTokens(input)
 	return getDefinitionTokens(tokens, names.StartEntity, names.EndEntity)
 }
 
-func GetTypeDefinitions(tokens []Token) ([][]Token, error) {
+func TokenizeTypeDefinitions(input string) ([][]Token, error) {
+	tokens := CreateTokens(input)
 	return getDefinitionTokens(tokens, names.StartType, names.EndType)
 }
 
-func GetFunctionDefinitions(tokens []Token) ([][]Token, error) {
+func TokenizeFunctionDefinitions(input string) ([][]Token, error) {
+	tokens := CreateTokens(input)
 	return getDefinitionTokens(tokens, names.StartFunction, names.EndFunction)
 }
 

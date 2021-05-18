@@ -1,4 +1,4 @@
-package tokenizer
+package parser
 
 // FIFO Stack
 type runeQueue string

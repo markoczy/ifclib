@@ -10,10 +10,10 @@ import (
 	"github.com/markoczy/ifclib/xp/types"
 )
 
-func ParseType(tokens []string, mp elems.Map) xp.Type {
+func ParseType(tokens []Token, mp elems.Map) xp.Type {
 	queue := newTokenQueue(tokens)
 	popAndAssertEquals("TYPE", queue)
-	name := queue.Pop()
+	name := queue.Pop().Content()
 	popAndAssertEquals("=", queue)
 	parent := parseType(queue, mp)
 	popAndAssertEquals(";", queue)
@@ -23,7 +23,7 @@ func ParseType(tokens []string, mp elems.Map) xp.Type {
 
 func parseType(queue *tokenQueue, mp elems.Map) xp.Element {
 	var el xp.Element
-	parentName := queue.Pop()
+	parentName := queue.Pop().Content()
 	switch parentName {
 	case names.Binary:
 		el = types.Binary
@@ -61,14 +61,14 @@ func parseString(tokens *tokenQueue) xp.Type {
 	var err error
 	length := -1
 	fixed := false
-	if tokens.Peek() == "(" {
+	if tokens.Peek().Content() == "(" {
 		tokens.Pop()
-		length, err = strconv.Atoi(tokens.Pop())
+		length, err = strconv.Atoi(tokens.Pop().Content())
 		if err != nil {
 			panic(fmt.Errorf("Could not parse length to int %w", err))
 		}
 		tokens.Pop()
-		if tokens.Peek() == "FIXED" {
+		if tokens.Peek().Content() == "FIXED" {
 			tokens.Pop()
 			fixed = true
 		}
@@ -83,22 +83,22 @@ func parseArrayLike(queue *tokenQueue, generator func(int, int, xp.Element) xp.T
 	var (
 		min, max int
 		err      error
-		token    string
+		token    Token
 	)
 
 	popAndAssertEquals("[", queue)
 	token = queue.Pop()
-	min, err = strconv.Atoi(token)
+	min, err = strconv.Atoi(token.Content())
 	if err != nil {
 		panic(fmt.Errorf("Failed to parse min value from token %s %w", token, err))
 	}
 	popAndAssertEquals(":", queue)
 
 	token = queue.Pop()
-	if token == "?" {
+	if token.Content() == "?" {
 		max = -1
 	} else {
-		max, err = strconv.Atoi(token)
+		max, err = strconv.Atoi(token.Content())
 		if err != nil {
 			panic(fmt.Errorf("Failed to parse max value from token %s %w", token, err))
 		}
@@ -108,7 +108,7 @@ func parseArrayLike(queue *tokenQueue, generator func(int, int, xp.Element) xp.T
 
 	var parent xp.Element
 	token = queue.Pop()
-	switch token {
+	switch token.Content() {
 	case names.Binary:
 		parent = types.Binary
 	case names.Boolean:
@@ -124,7 +124,7 @@ func parseArrayLike(queue *tokenQueue, generator func(int, int, xp.Element) xp.T
 	case names.String:
 		parent = types.String
 	default:
-		parent = mp.Lookup(token)
+		parent = mp.Lookup(token.Content())
 	}
 	return generator(min, max, parent)
 }
@@ -133,9 +133,9 @@ func parseEnumeration(queue *tokenQueue) xp.Type {
 	popAndAssertEquals("OF", queue)
 	popAndAssertEquals("(", queue)
 	names := []string{}
-	for queue.Peek() != ")" {
-		names = append(names, queue.Pop())
-		if queue.Peek() == "," {
+	for queue.Peek().Content() != ")" {
+		names = append(names, queue.Pop().Content())
+		if queue.Peek().Content() == "," {
 			queue.Pop()
 		}
 	}

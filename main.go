@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/markoczy/ifclib/parser"
-	"github.com/markoczy/ifclib/tokenizer"
 	"github.com/markoczy/ifclib/xp/types"
 )
 
@@ -56,9 +55,9 @@ func normalize(s string) string {
 func main() {
 	// testCreateTypes()
 	// testTokenize()
-	// testParse()
+	testParse()
 	// testParseEntities()
-	testNewTokenizer()
+	// testNewTokenizer()
 }
 
 func testCreateTypes() {
@@ -136,7 +135,8 @@ TYPE IfcMooringDeviceTypeEnum = ENUMERATION OF
 END_TYPE;`
 
 	mp := parser.InitElementMap(input)
-	tokens := parser.TokenizeTypeDefinitions(input)
+	tokens, err := parser.TokenizeTypeDefinitions(input)
+	check(err)
 
 	fmt.Println(mp)
 	for _, v := range tokens {
@@ -191,7 +191,8 @@ func testParseEntities() {
 	mp := parser.InitElementMap(input)
 	fmt.Println("Elements before parse:", mp)
 
-	tokens := parser.TokenizeTypeDefinitions(input)
+	tokens, err := parser.TokenizeTypeDefinitions(input)
+	check(err)
 	for _, v := range tokens {
 		fmt.Println("*** Tokens:", v)
 		tp := parser.ParseType(v, mp)
@@ -199,7 +200,8 @@ func testParseEntities() {
 	}
 	fmt.Println("Elements after parse types:", mp)
 
-	tokens = parser.TokenizeEntityDefinitions(input)
+	tokens, err = parser.TokenizeEntityDefinitions(input)
+	check(err)
 	for _, v := range tokens {
 		fmt.Println("*** Tokens:", v)
 		ent := parser.ParseEntity(v, mp)
@@ -229,12 +231,9 @@ ENTITY IfcActionRequest
 	Status : OPTIONAL IfcLabel;
 	LongDescription : OPTIONAL IfcText;
 END_ENTITY;`
-	tokens := tokenizer.CreateTokens(s)
-	typedefs, err := tokenizer.GetTypeDefinitions(tokens)
-	if err != nil {
-		panic(err)
-	}
-	for _, v := range typedefs {
+	tokens, err := parser.TokenizeTypeDefinitions(s)
+	check(err)
+	for _, v := range tokens {
 		fmt.Println("*** Typedef:")
 		for _, _v := range v {
 			fmt.Println(_v)
