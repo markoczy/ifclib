@@ -52,7 +52,7 @@ func assert(b bool, s string) {
 
 func popAndAssertEquals(expected string, queue *tokenQueue) {
 	token := queue.Pop()
-	assert(token.Content() == expected, fmt.Sprintf("Expected '%s' found %s at line %d and position %d", expected, token.Content(), token.Line(), token.Begin()))
+	assert(token.Content() == expected, fmt.Sprintf("Expected '%s' found '%s' at line %d and position %d", expected, token.Content(), token.Line(), token.Begin()))
 }
 
 // func popAndAssert(queue *)

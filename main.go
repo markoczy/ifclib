@@ -55,8 +55,8 @@ func normalize(s string) string {
 func main() {
 	// testCreateTypes()
 	// testTokenize()
-	testParse()
-	// testParseEntities()
+	// testParse()
+	testParseEntities()
 	// testNewTokenizer()
 }
 
