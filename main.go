@@ -57,6 +57,7 @@ func main() {
 	// testTokenize()
 	// testParse()
 	testParseEntities()
+	// testNewTokenizer()
 }
 
 func testCreateTypes() {
@@ -134,7 +135,8 @@ TYPE IfcMooringDeviceTypeEnum = ENUMERATION OF
 END_TYPE;`
 
 	mp := parser.InitElementMap(input)
-	tokens := parser.TokenizeTypeDefinitions(input)
+	tokens, err := parser.TokenizeTypeDefinitions(input)
+	check(err)
 
 	fmt.Println(mp)
 	for _, v := range tokens {
@@ -189,7 +191,8 @@ func testParseEntities() {
 	mp := parser.InitElementMap(input)
 	fmt.Println("Elements before parse:", mp)
 
-	tokens := parser.TokenizeTypeDefinitions(input)
+	tokens, err := parser.TokenizeTypeDefinitions(input)
+	check(err)
 	for _, v := range tokens {
 		fmt.Println("*** Tokens:", v)
 		tp := parser.ParseType(v, mp)
@@ -197,7 +200,8 @@ func testParseEntities() {
 	}
 	fmt.Println("Elements after parse types:", mp)
 
-	tokens = parser.TokenizeEntityDefinitions(input)
+	tokens, err = parser.TokenizeEntityDefinitions(input)
+	check(err)
 	for _, v := range tokens {
 		fmt.Println("*** Tokens:", v)
 		ent := parser.ParseEntity(v, mp)
@@ -205,6 +209,36 @@ func testParseEntities() {
 	}
 	fmt.Println("***********************************")
 	fmt.Println("Elements after parse entities:", mp)
+}
+
+func testNewTokenizer() {
+	s := `TYPE IfcMonthInYearNumber = INTEGER;
+	WHERE
+	   ValidRange : {1 <= SELF <= 12};
+   END_TYPE;
+   
+   TYPE IfcFastenerTypeEnum = ENUMERATION OF
+   (GLUE
+   ,MORTAR
+   ,WELD
+   ,USERDEFINED
+   ,NOTDEFINED);
+END_TYPE;
+
+ENTITY IfcActionRequest
+ SUBTYPE OF (IfcControl);
+	PredefinedType : OPTIONAL IfcActionRequestTypeEnum;
+	Status : OPTIONAL IfcLabel;
+	LongDescription : OPTIONAL IfcText;
+END_ENTITY;`
+	tokens, err := parser.TokenizeTypeDefinitions(s)
+	check(err)
+	for _, v := range tokens {
+		fmt.Println("*** Typedef:")
+		for _, _v := range v {
+			fmt.Println(_v)
+		}
+	}
 }
 
 func noop(i ...interface{}) {}
