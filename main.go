@@ -210,11 +210,35 @@ func testParseEntities() {
 }
 
 func testNewTokenizer() {
-	// TODO newline support
-	s := `TYPE IfcMonthInYearNumber = INTEGER; WHERE ValidRange : {1 <= SELF <= 12}; END_TYPE;`
+	s := `TYPE IfcMonthInYearNumber = INTEGER;
+	WHERE
+	   ValidRange : {1 <= SELF <= 12};
+   END_TYPE;
+   
+   TYPE IfcFastenerTypeEnum = ENUMERATION OF
+   (GLUE
+   ,MORTAR
+   ,WELD
+   ,USERDEFINED
+   ,NOTDEFINED);
+END_TYPE;
+
+ENTITY IfcActionRequest
+ SUBTYPE OF (IfcControl);
+	PredefinedType : OPTIONAL IfcActionRequestTypeEnum;
+	Status : OPTIONAL IfcLabel;
+	LongDescription : OPTIONAL IfcText;
+END_ENTITY;`
 	tokens := tokenizer.CreateTokens(s)
-	for _, v := range tokens {
-		fmt.Println("Token:", v)
+	typedefs, err := tokenizer.GetTypeDefinitions(tokens)
+	if err != nil {
+		panic(err)
+	}
+	for _, v := range typedefs {
+		fmt.Println("*** Typedef:")
+		for _, _v := range v {
+			fmt.Println(_v)
+		}
 	}
 }
 

@@ -13,4 +13,11 @@ var (
 	Set         = "SET"
 	Enumeration = "ENUMERATION"
 	Select      = "SELECT"
+	// Markers
+	StartType     = "TYPE"
+	EndType       = "END_TYPE"
+	StartEntity   = "ENTITY"
+	EndEntity     = "END_ENTITY"
+	StartFunction = "FUNCTION"
+	EndFunction   = "END_FUNCTION"
 )
